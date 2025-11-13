@@ -64,10 +64,9 @@ The app will start at:
 
 | Method | Endpoint | Description | Auth Required |
 |--------|-----------|--------------|----------------|
-| `POST` | `/api/auth/register` | Register a new user | ❌ No |
-| `POST` | `/api/auth/login` | Authenticate user and return JWT | ❌ No |
-| `GET` | `/api/user/profile` | Get user details | ✅ Yes |
-| `GET` | `/api/admin/dashboard` | Access admin area | ✅ Yes (Admin only) |
+| `POST` | `/register` | Register a new user | ❌ No |
+| `POST` | `/authenticate` | Authenticate user and return JWT | ❌ No |
+| `GET` | `/employee` | Get user details | ✅ Yes |
 
 > ⚠️ After login, include your token in every secured request:  
 > `Authorization: Bearer <your_token_here>`
@@ -86,8 +85,8 @@ The app will start at:
 ## 🧪 Testing with Postman
 You can test endpoints using Postman or Insomnia:
 
-1. Register a new user via `/api/auth/register`
-2. Log in via `/api/auth/login` → get the JWT token
+1. Register a new user via `/register`
+2. Log in via `/authenticate` → get the JWT token
 3. Send a request to a secured endpoint using the token:
    ```
    Authorization: Bearer <token>
