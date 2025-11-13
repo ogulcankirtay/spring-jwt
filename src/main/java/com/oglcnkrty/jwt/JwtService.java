@@ -20,23 +20,33 @@ public class JwtService {
     private static final String SECRET_KEY = "080a0P+s5MPfNPU9bX+6O4ppMfz11f3d8q/JgnPbI1E=";
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, String> claims = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
         claims.put("role", "admin");
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .setClaims(claims)
+                .addClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2))
                 .signWith(getKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    public <T> T exportToken(String token, Function<Claims, T> claimsTFunction) {
-        Claims claims = Jwts.parserBuilder()
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+    }
+
+    public Object getClaimsByKey(String token, String key) {
+        Claims claims = getClaims(token);
+        return claims.get(key);
+    }
+
+    public <T> T exportToken(String token, Function<Claims, T> claimsTFunction) {
+        Claims claims = getClaims(token);
         return claimsTFunction.apply(claims);
 
     }

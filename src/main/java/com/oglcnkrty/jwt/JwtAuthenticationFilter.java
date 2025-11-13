@@ -19,45 +19,44 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String header;
         String token;
-        String userName;
+        String username;
+
         header = request.getHeader("Authorization");
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
         token = header.substring(7);
         try {
-            userName = jwtService.getUserNameByToken(token);
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+            username = jwtService.getUserNameByToken(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (userDetails != null && !jwtService.isTokenExpired(token)) {
-                    //kişiyi SecurityContexte Koyabilirim yani içeri alabilirim :D
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userName,
-                                    null,
-                                    userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            username, null, userDetails.getAuthorities());
+
                     authentication.setDetails(userDetails);
+
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-
             }
         } catch (ExpiredJwtException e) {
-            System.out.println("token expired" + e.getMessage());
+            System.out.println("Token süresi dolmuştur : " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("General Error" + e.getMessage());
+            System.out.println("Genel bir hata oluştu : " + e.getMessage());
         }
         filterChain.doFilter(request, response);
-
     }
+
 }
